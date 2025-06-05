@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Encuestadores</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+
+  <header class="bg-black text-white flex justify-between items-center p-4">
+    <img src="img/logo.svg" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+  </header>
+
+  <main class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Encuestadores registrados</h1>
+
+    <div class="mb-4 flex flex-col md:flex-row gap-4 justify-center">
+      <a href="add_encuestador.html" class="border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white">Nuevo Encuestador</a>
+      <a href="proyectos.html" class="border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white">Ver Proyectos</a>
+    </div>
+
+    <table id="tablaEncuestadores" class="w-full max-w-5xl mx-auto table-auto border">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2">Nombre</th>
+          <th class="px-4 py-2">Carnet</th>
+          <th class="px-4 py-2">Proyecto</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="encuestadoresBody"></tbody>
+    </table>
+
+    <p id="vacioMsg" class="text-gray-500 mt-6 hidden">
+      Aún no hay encuestadores registrados, prueba agregar uno nuevo.
+    </p>
+  </main>
+
+  <footer class="text-sm text-white bg-black py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
+
+  <script>
+    const token = localStorage.getItem('token');
+
+    // Verificar presencia del token
+    if (!token) {
+      window.location.href = '/login_admin.html';
+    }
+
+    // Verificar validez del token antes de cargar datos
+    async function verificarToken() {
+      try {
+        const res = await fetch('/api/encuestadores/all', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          alert("Acceso no autorizado. Inicia sesión nuevamente.");
+          localStorage.removeItem('token');
+          window.location.href = '/login_admin.html';
+          return;
+        }
+
+        if (!res.ok) throw new Error("Error al obtener encuestadores");
+
+        const encuestadores = await res.json();
+        renderizarEncuestadores(encuestadores);
+      } catch (err) {
+        alert("Error al verificar el acceso.");
+      }
+    }
+
+    function renderizarEncuestadores(encuestadores) {
+      const tbody = document.getElementById('encuestadoresBody');
+      const vacioMsg = document.getElementById('vacioMsg');
+
+      tbody.innerHTML = '';
+
+      if (encuestadores.length === 0) {
+        vacioMsg.classList.remove('hidden');
+        return;
+      }
+
+      encuestadores.forEach(e => {
+        const row = document.createElement('tr');
+        row.className = "border-b";
+
+        row.innerHTML = `
+          <td class="px-4 py-2">${e.nombre_completo}</td>
+          <td class="px-4 py-2">${e.carnet_asignado}</td>
+          <td class="px-4 py-2">${e.id_proyecto?.nombre || 'Sin proyecto'}</td>
+          <td class="px-4 py-2 font-semibold ${e.estado === 'activo' ? 'text-green-600' : 'text-red-500'}">${e.estado}</td>
+          <td class="px-4 py-2 flex flex-col md:flex-row gap-2 justify-center">
+            <button onclick="editarEncuestador('${e._id}')" class="border border-green-600 text-green-600 px-2 py-1 rounded hover:bg-green-600 hover:text-white">Editar</button>
+            <button onclick="eliminarEncuestador('${e._id}')" class="border border-red-600 text-red-600 px-2 py-1 rounded hover:bg-red-600 hover:text-white">Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function editarEncuestador(id) {
+      window.location.href = `edit_encuestador.html?id=${id}`;
+    }
+
+    async function eliminarEncuestador(id) {
+      if (!confirm("¿Seguro que deseas eliminar este encuestador?")) return;
+
+      try {
+        const res = await fetch(`/api/encuestadores/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          alert("Encuestador eliminado.");
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert(data.message || "No se pudo eliminar el encuestador.");
+        }
+      } catch (err) {
+        alert("Error al intentar eliminar.");
+      }
+    }
+
+    verificarToken();
+  </script>
+</body>
+</html>

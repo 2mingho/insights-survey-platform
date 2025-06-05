@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agregar Encuestador</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+
+  <header class="bg-black text-white flex justify-between items-center p-4">
+    <img src="img/logo.svg" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+  </header>
+
+  <main class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Nuevo encuestador</h1>
+
+    <form id="addForm" class="max-w-lg mx-auto flex flex-col gap-4 text-left">
+      <input type="text" name="nombre_completo" placeholder="Nombre completo" required />
+      <input type="text" name="cedula" placeholder="Cédula" required />
+      <input type="text" name="carnet_asignado" placeholder="ID del Carnet" required />
+      <input type="text" name="funcion" placeholder="Función / Cargo" required />
+      <select name="id_proyecto" id="proyectoSelect" required></select>
+      <input type="text" name="entidad_responsable" placeholder="Entidad responsable" required />
+      <input type="text" name="zona_designada" placeholder="Zona asignada" required />
+      <input type="url" name="foto_url" placeholder="URL de la foto" />
+      <select name="estado">
+        <option value="activo">Activo</option>
+        <option value="inactivo" selected>Inactivo</option>
+      </select>
+      <label><input type="checkbox" name="es_confidencial" /> Proyecto confidencial</label>
+
+      <button type="submit" class="border border-black py-2 rounded-full hover:bg-black hover:text-white">Agregar</button>
+    </form>
+  </main>
+
+  <footer class="text-sm text-white bg-black py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Sesión no válida. Redirigiendo al login.');
+      window.location.href = '/login_admin.html';
+    }
+
+    async function cargarProyectos() {
+      try {
+        const res = await fetch('/api/proyectos', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          throw new Error('Acceso no autorizado');
+        }
+
+        const proyectos = await res.json();
+        const select = document.getElementById('proyectoSelect');
+        proyectos.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p._id;
+          opt.textContent = p.nombre;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        alert('Token inválido o expirado. Redirigiendo...');
+        localStorage.removeItem('token');
+        window.location.href = '/login_admin.html';
+      }
+    }
+
+    async function enviarFormulario(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+      payload.es_confidencial = formData.get('es_confidencial') === 'on';
+
+      try {
+        const res = await fetch('/api/encuestadores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('Encuestador agregado correctamente');
+          form.reset();
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Error al guardar encuestador');
+        }
+      } catch (err) {
+        alert('Error al enviar los datos al servidor');
+      }
+    }
+
+    cargarProyectos();
+    document.getElementById('addForm').addEventListener('submit', enviarFormulario);
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil de Encuestador</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="flex flex-col min-h-screen justify-between font-sans text-center">
+
+  <header class="bg-black text-white flex justify-between items-center p-4">
+    <img src="img/logo.svg" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+  </header>
+
+  <main class="p-6 flex flex-col items-center">
+    <h1 class="text-2xl font-bold mb-6">Perfil de encuestador</h1>
+    
+    <div id="infoContainer" class="w-full max-w-md flex flex-col gap-4"></div>
+  </main>
+
+  <footer class="text-sm text-center text-white bg-black py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("encuestadorData"));
+    const cont = document.getElementById("infoContainer");
+
+    if (!data) {
+      cont.innerHTML = "<p>No hay datos disponibles.</p>";
+    } else {
+      const isActivo = data.estado === "activo";
+
+      cont.innerHTML = `
+        <div class="flex flex-col items-center">
+          <div class="relative w-28 h-28 mb-2">
+            <img src="${data.foto_url || 'img/avatar-placeholder.png'}" alt="Foto"
+                 onerror="this.src='img/avatar-placeholder.png'"
+                 class="w-full h-full object-cover rounded-xl border border-black">
+            <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full ${isActivo ? 'bg-green-500' : 'bg-red-600'} border-2 border-white"></span>
+          </div>
+          <p class="text-lg font-bold">${isActivo ? data.nombre_completo : 'Carnet inactivo'}</p>
+          <p>ID Colaborador: ${isActivo ? data.carnet_asignado : '---'}</p>
+          <p>${isActivo ? data.funcion : '---'}</p>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded">
+          <p><strong>Proyecto:</strong> ${isActivo ? data.id_proyecto?.nombre || 'No especificado' : 'Inactivo'}</p>
+          <p><strong>Entidad Responsable:</strong> ${isActivo ? data.entidad_responsable : '---'}</p>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded">
+          <p><strong>Zona Designada</strong></p>
+          <p class="text-xl font-semibold">${isActivo ? data.zona_designada : 'Inactivo'}</p>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded text-sm text-left">
+          <p class="mb-2">
+            Nota: Esta credencial digital ha sido emitida exclusivamente para fines de identificación y verificación de los colaboradores externos que participan en el proyecto ${isActivo ? (data.id_proyecto?.nombre || '---') : '---'}.
+          </p>
+          <p>
+            La información aquí presentada ha sido validada por la entidad responsable y está destinada a la transparencia y confianza en el proceso de levantamiento de datos de campo.
+          </p>
+        </div>
+
+        <p class="mt-4 font-semibold text-sm">
+          De tener alguna queja o inquietud, puede contactarnos al número: <br>(809) XXX-XXXX
+        </p>
+
+        <button onclick="localStorage.removeItem('encuestadorData'); window.location.href='/'"
+                class="mt-6 border border-black px-4 py-2 rounded hover:bg-black hover:text-white transition">
+          Verificar otro ID
+        </button>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Proyecto</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+
+  <header class="bg-black text-white flex justify-between items-center p-4">
+    <img src="img/logo.svg" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+  </header>
+
+  <main class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Editar Proyecto</h1>
+
+    <form id="editForm" class="max-w-lg mx-auto flex flex-col gap-4 text-left">
+      <input type="text" name="nombre" placeholder="Nombre del proyecto" required />
+      <textarea name="descripcion" rows="3" placeholder="Descripción del proyecto"></textarea>
+      <input type="url" name="foto_url" placeholder="URL del logo o imagen representativa" />
+      <button type="submit" class="border border-black py-2 rounded-full hover:bg-black hover:text-white">Guardar Cambios</button>
+    </form>
+  </main>
+
+  <footer class="text-sm text-white bg-black py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Sesión expirada. Redirigiendo...");
+      window.location.href = "/login_admin.html";
+    }
+
+    const id = new URLSearchParams(window.location.search).get("id");
+    const form = document.getElementById("editForm");
+
+    if (!id) {
+      alert("ID de proyecto no válido.");
+      window.location.href = "proyectos.html";
+    }
+
+    async function cargarProyecto() {
+      try {
+        const res = await fetch(`/api/proyectos/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.status === 401) {
+          alert("Sesión expirada. Redirigiendo al login.");
+          localStorage.removeItem("token");
+          window.location.href = "/login_admin.html";
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Error al obtener proyecto");
+        }
+
+        const data = await res.json();
+        form.nombre.value = data.nombre || '';
+        form.descripcion.value = data.descripcion || '';
+        form.foto_url.value = data.foto_url || '';
+      } catch (err) {
+        alert("No se pudo cargar el proyecto.");
+        window.location.href = "proyectos.html";
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch(`/api/proyectos/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert("✅ Proyecto actualizado correctamente.");
+          window.location.href = "proyectos.html";
+        } else if (res.status === 401) {
+          alert("Sesión expirada. Redirigiendo al login.");
+          localStorage.removeItem("token");
+          window.location.href = "/login_admin.html";
+        } else {
+          const data = await res.json();
+          alert(data.message || "❌ Error al actualizar el proyecto.");
+        }
+      } catch (err) {
+        alert("❌ Error de red al enviar los datos.");
+      }
+    });
+
+    cargarProyecto();
+  </script>
+</body>
+</html>

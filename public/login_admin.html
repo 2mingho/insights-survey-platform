@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Admin</title>
+  <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-6 rounded-lg shadow-md w-96">
+    <h2 class="text-2xl font-bold mb-4 text-center">Ingreso Administrador</h2>
+    <form id="loginForm">
+      <input type="email" id="mail" placeholder="Correo" required class="w-full mb-3 p-2 border rounded">
+      <input type="password" id="contraseña" placeholder="Contraseña" required class="w-full mb-3 p-2 border rounded">
+      <button id="loginBtn" type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+        Ingresar
+      </button>
+    </form>
+    <p id="error" class="text-red-600 mt-2 hidden"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorText = document.getElementById('error');
+    const loginBtn = document.getElementById('loginBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const mail = document.getElementById('mail').value.trim();
+      const contraseña = document.getElementById('contraseña').value.trim();
+
+      if (!mail || !contraseña) {
+        errorText.textContent = 'Debe completar todos los campos.';
+        errorText.classList.remove('hidden');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Ingresando...';
+      errorText.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mail, contraseña })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('admin_nombre', data.nombre);
+          window.location.href = '/view_encuestadores.html';
+        } else {
+          throw new Error(data.message || 'Credenciales incorrectas');
+        }
+      } catch (err) {
+        errorText.textContent = err.message;
+        errorText.classList.remove('hidden');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Ingresar';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Proyectos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+
+  <header class="bg-black text-white flex justify-between items-center p-4">
+    <img src="img/logo.svg" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+  </header>
+
+  <main class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Proyectos registrados</h1>
+
+    <div class="mb-4 flex flex-col md:flex-row gap-4 justify-center">
+      <a href="add_proyecto.html" class="border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white">Nuevo Proyecto</a>
+      <a href="view_encuestadores.html" class="border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white">Ver Encuestadores</a>
+    </div>
+
+    <table id="tablaProyectos" class="w-full max-w-4xl mx-auto table-auto border">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2">Nombre</th>
+          <th class="px-4 py-2">Descripción</th>
+          <th class="px-4 py-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="proyectosBody"></tbody>
+    </table>
+
+    <p id="vacioMsg" class="text-gray-500 mt-6 hidden">
+      Aún no hay proyectos registrados, prueba agregar uno nuevo.
+    </p>
+  </main>
+
+  <footer class="text-sm text-white bg-black py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Sesión inválida. Redirigiendo...");
+      window.location.href = "/login_admin.html";
+    }
+
+    async function cargarProyectos() {
+      try {
+        const res = await fetch('/api/proyectos', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) throw new Error();
+
+        const proyectos = await res.json();
+        const tbody = document.getElementById('proyectosBody');
+        const vacioMsg = document.getElementById('vacioMsg');
+        tbody.innerHTML = '';
+
+        if (proyectos.length === 0) {
+          vacioMsg.classList.remove('hidden');
+          return;
+        } else {
+          vacioMsg.classList.add('hidden');
+        }
+
+        proyectos.forEach(p => {
+          const row = document.createElement('tr');
+          row.className = "border-b";
+
+          const nombre = document.createElement('td');
+          nombre.className = "px-4 py-2";
+          nombre.textContent = p.nombre;
+
+          const descripcion = document.createElement('td');
+          descripcion.className = "px-4 py-2";
+          descripcion.textContent = p.descripcion || '';
+
+          const acciones = document.createElement('td');
+          acciones.className = "px-4 py-2 flex flex-col md:flex-row gap-2 justify-center";
+          acciones.innerHTML = `
+            <button onclick="editarProyecto('${p._id}')" class="border border-green-600 text-green-600 px-2 py-1 rounded hover:bg-green-600 hover:text-white">Editar</button>
+            <button onclick="eliminarProyecto('${p._id}')" class="border border-red-600 text-red-600 px-2 py-1 rounded hover:bg-red-600 hover:text-white">Eliminar</button>
+          `;
+
+          row.appendChild(nombre);
+          row.appendChild(descripcion);
+          row.appendChild(acciones);
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        alert("Sesión expirada. Redirigiendo al login.");
+        localStorage.removeItem("token");
+        window.location.href = "/login_admin.html";
+      }
+    }
+
+    function editarProyecto(id) {
+      window.location.href = `edit_proyecto.html?id=${id}`;
+    }
+
+    async function eliminarProyecto(id) {
+      if (!confirm("¿Seguro que deseas eliminar este proyecto?")) return;
+
+      try {
+        const res = await fetch(`/api/proyectos/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          alert("Proyecto eliminado.");
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert(data.message || "No se pudo eliminar el proyecto.");
+        }
+      } catch (err) {
+        alert("Error al intentar eliminar.");
+      }
+    }
+
+    cargarProyectos();
+  </script>
+</body>
+</html>
