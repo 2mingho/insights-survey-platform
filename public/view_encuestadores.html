@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestión de Encuestadores</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="font-sans min-h-screen flex flex-col justify-between text-center">
 
   <header class="bg-black text-white flex justify-between items-center p-4">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    <div class="flex items-center gap-4">
+      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
+      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    </div>
   </header>
 
   <main class="p-6">
@@ -45,13 +48,25 @@
 
   <script>
     const token = localStorage.getItem('token');
-
-    // Verificar presencia del token
     if (!token) {
       window.location.href = '/login_admin.html';
     }
 
-    // Verificar validez del token antes de cargar datos
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      window.location.href = '/login_admin.html';
+    }
+
+    function sanitize(str) {
+      return str?.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m])) || '';
+    }
+
     async function verificarToken() {
       try {
         const res = await fetch('/api/encuestadores/all', {
@@ -62,8 +77,7 @@
 
         if (res.status === 401 || res.status === 403) {
           alert("Acceso no autorizado. Inicia sesión nuevamente.");
-          localStorage.removeItem('token');
-          window.location.href = '/login_admin.html';
+          cerrarSesion();
           return;
         }
 
@@ -92,10 +106,10 @@
         row.className = "border-b";
 
         row.innerHTML = `
-          <td class="px-4 py-2">${e.nombre_completo}</td>
-          <td class="px-4 py-2">${e.carnet_asignado}</td>
-          <td class="px-4 py-2">${e.id_proyecto?.nombre || 'Sin proyecto'}</td>
-          <td class="px-4 py-2 font-semibold ${e.estado === 'activo' ? 'text-green-600' : 'text-red-500'}">${e.estado}</td>
+          <td class="px-4 py-2">${sanitize(e.nombre_completo)}</td>
+          <td class="px-4 py-2">${sanitize(e.carnet_asignado)}</td>
+          <td class="px-4 py-2">${sanitize(e.id_proyecto?.nombre || 'Sin proyecto')}</td>
+          <td class="px-4 py-2 font-semibold ${e.estado === 'activo' ? 'text-green-600' : 'text-red-500'}">${sanitize(e.estado)}</td>
           <td class="px-4 py-2 flex flex-col md:flex-row gap-2 justify-center">
             <button onclick="editarEncuestador('${e._id}')" class="border border-green-600 text-green-600 px-2 py-1 rounded hover:bg-green-600 hover:text-white">Editar</button>
             <button onclick="eliminarEncuestador('${e._id}')" class="border border-red-600 text-red-600 px-2 py-1 rounded hover:bg-red-600 hover:text-white">Eliminar</button>

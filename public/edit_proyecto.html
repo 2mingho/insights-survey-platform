@@ -10,7 +10,10 @@
 
   <header class="bg-black text-white flex justify-between items-center p-4">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    <div class="flex items-center gap-4">
+      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
+      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    </div>
   </header>
 
   <main class="p-6">
@@ -30,42 +33,47 @@
 
   <script>
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Sesión expirada. Redirigiendo...");
+    const form = document.getElementById("editForm");
+    const id = new URLSearchParams(window.location.search).get("id");
+
+    if (!token || !id) {
+      alert("Sesión inválida o ID faltante. Redirigiendo...");
       window.location.href = "/login_admin.html";
     }
 
-    const id = new URLSearchParams(window.location.search).get("id");
-    const form = document.getElementById("editForm");
+    function cerrarSesion() {
+      localStorage.removeItem("token");
+      window.location.href = "/login_admin.html";
+    }
 
-    if (!id) {
-      alert("ID de proyecto no válido.");
-      window.location.href = "proyectos.html";
+    function sanitize(str) {
+      return str?.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m])) || '';
     }
 
     async function cargarProyecto() {
       try {
         const res = await fetch(`/api/proyectos/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 403) {
           alert("Sesión expirada. Redirigiendo al login.");
-          localStorage.removeItem("token");
-          window.location.href = "/login_admin.html";
+          cerrarSesion();
           return;
         }
 
-        if (!res.ok) {
-          throw new Error("Error al obtener proyecto");
-        }
+        if (!res.ok) throw new Error("Error al obtener proyecto");
 
         const data = await res.json();
-        form.nombre.value = data.nombre || '';
-        form.descripcion.value = data.descripcion || '';
-        form.foto_url.value = data.foto_url || '';
+        form.nombre.value = sanitize(data.nombre || '');
+        form.descripcion.value = sanitize(data.descripcion || '');
+        form.foto_url.value = sanitize(data.foto_url || '');
       } catch (err) {
         alert("No se pudo cargar el proyecto.");
         window.location.href = "proyectos.html";
@@ -92,8 +100,7 @@
           window.location.href = "proyectos.html";
         } else if (res.status === 401) {
           alert("Sesión expirada. Redirigiendo al login.");
-          localStorage.removeItem("token");
-          window.location.href = "/login_admin.html";
+          cerrarSesion();
         } else {
           const data = await res.json();
           alert(data.message || "❌ Error al actualizar el proyecto.");

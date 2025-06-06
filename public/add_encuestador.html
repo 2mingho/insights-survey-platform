@@ -10,7 +10,10 @@
 
   <header class="bg-black text-white flex justify-between items-center p-4">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    <div class="flex items-center gap-4">
+      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
+      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    </div>
   </header>
 
   <main class="p-6">
@@ -46,6 +49,21 @@
       window.location.href = '/login_admin.html';
     }
 
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      window.location.href = '/login_admin.html';
+    }
+
+    function sanitize(str) {
+      return str?.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m])) || '';
+    }
+
     async function cargarProyectos() {
       try {
         const res = await fetch('/api/proyectos', {
@@ -61,13 +79,12 @@
         proyectos.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p._id;
-          opt.textContent = p.nombre;
+          opt.textContent = sanitize(p.nombre);
           select.appendChild(opt);
         });
       } catch (err) {
         alert('Token inválido o expirado. Redirigiendo...');
-        localStorage.removeItem('token');
-        window.location.href = '/login_admin.html';
+        cerrarSesion();
       }
     }
 
@@ -89,14 +106,17 @@
         });
 
         if (res.ok) {
-          alert('Encuestador agregado correctamente');
+          alert('✅ Encuestador agregado correctamente');
           form.reset();
+        } else if (res.status === 401) {
+          alert("Sesión expirada. Redirigiendo al login.");
+          cerrarSesion();
         } else {
           const data = await res.json();
-          alert(data.message || 'Error al guardar encuestador');
+          alert(data.message || '❌ Error al guardar encuestador');
         }
       } catch (err) {
-        alert('Error al enviar los datos al servidor');
+        alert('❌ Error de red al enviar los datos');
       }
     }
 

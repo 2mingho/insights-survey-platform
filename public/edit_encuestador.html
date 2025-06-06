@@ -10,7 +10,10 @@
 
   <header class="bg-black text-white flex justify-between items-center p-4">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    <div class="flex items-center gap-4">
+      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
+      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    </div>
   </header>
 
   <main class="p-6">
@@ -55,6 +58,21 @@
       window.location.href = 'view_encuestadores.html';
     }
 
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      window.location.href = '/login_admin.html';
+    }
+
+    function sanitize(str) {
+      return str?.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m])) || '';
+    }
+
     async function cargarProyectos() {
       const res = await fetch('/api/proyectos', {
         headers: { Authorization: `Bearer ${token}` }
@@ -66,7 +84,7 @@
       proyectos.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p._id;
-        opt.textContent = p.nombre;
+        opt.textContent = sanitize(p.nombre);
         proyectoSelect.appendChild(opt);
       });
     }
@@ -80,14 +98,14 @@
 
       const e = await res.json();
 
-      form.nombre_completo.value = e.nombre_completo || '';
-      form.cedula.value = e.cedula || '';
-      form.carnet_asignado.value = e.carnet_asignado || '';
-      form.funcion.value = e.funcion || '';
-      form.entidad_responsable.value = e.entidad_responsable || '';
-      form.zona_designada.value = e.zona_designada || '';
-      form.foto_url.value = e.foto_url || '';
-      form.estado.value = e.estado || 'inactivo';
+      form.nombre_completo.value = sanitize(e.nombre_completo || '');
+      form.cedula.value = sanitize(e.cedula || '');
+      form.carnet_asignado.value = sanitize(e.carnet_asignado || '');
+      form.funcion.value = sanitize(e.funcion || '');
+      form.entidad_responsable.value = sanitize(e.entidad_responsable || '');
+      form.zona_designada.value = sanitize(e.zona_designada || '');
+      form.foto_url.value = sanitize(e.foto_url || '');
+      form.estado.value = sanitize(e.estado || 'inactivo');
       form.es_confidencial.checked = !!e.es_confidencial;
 
       const intv = setInterval(() => {
@@ -115,16 +133,18 @@
         });
 
         if (res.ok) {
-          alert('Encuestador actualizado correctamente');
+          alert('✅ Encuestador actualizado correctamente');
           window.location.href = 'view_encuestadores.html';
+        } else if (res.status === 401) {
+          alert("Sesión expirada. Redirigiendo al login.");
+          cerrarSesion();
         } else {
           const data = await res.json();
-          alert(data.message || 'Error al actualizar');
+          alert(data.message || '❌ Error al actualizar');
         }
       } catch (err) {
-        alert('Error en la operación. Redirigiendo...');
-        localStorage.removeItem('token');
-        window.location.href = '/login_admin.html';
+        alert('❌ Error en la operación. Redirigiendo...');
+        cerrarSesion();
       }
     });
 
@@ -132,8 +152,7 @@
       .then(cargarEncuestador)
       .catch(() => {
         alert('Sesión inválida. Redirigiendo...');
-        localStorage.removeItem('token');
-        window.location.href = '/login_admin.html';
+        cerrarSesion();
       });
   </script>
 </body>

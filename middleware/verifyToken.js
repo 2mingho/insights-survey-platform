@@ -10,11 +10,6 @@ function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!decoded || decoded.rol !== "admin") {
-      return res.status(403).json({ message: "Acceso solo para administradores" });
-    }
-
     req.usuario = decoded;
     next();
   } catch (err) {
