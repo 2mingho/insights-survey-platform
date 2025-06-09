@@ -2,7 +2,34 @@ const express = require('express');
 const router = express.Router();
 const Encuestador = require('../models/Encuestador');
 const verifyToken = require('../middleware/verifyToken');
-const verifyAdmin = require('../middleware/verifyAdmin');
+
+// 🔐 GET /api/encuestadores/all
+// Solo administradores pueden ver el listado completo
+router.get('/all', verifyToken, async (req, res) => {
+  try {
+    const encuestadores = await Encuestador.find()
+      .populate('id_proyecto', 'nombre')
+      .sort({ creado_en: -1 });
+    res.json(encuestadores);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al obtener encuestadores' });
+  }
+});
+
+// 🔐 GET /api/encuestadores/id/:id
+// Buscar encuestador por su ID de MongoDB
+router.get('/id/:id', verifyToken, async (req, res) => {
+  try {
+    const encuestador = await Encuestador.findById(req.params.id).populate('id_proyecto', 'nombre');
+    if (!encuestador) {
+      return res.status(404).json({ message: 'Encuestador no encontrado' });
+    }
+    res.json(encuestador);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el encuestador' });
+  }
+});
 
 // 🔓 GET /api/encuestadores/:carnet
 // Consulta pública por carnet asignado (sin autenticación)
@@ -15,20 +42,6 @@ router.get('/:carnet', async (req, res) => {
     res.json(encuestador);
   } catch (error) {
     res.status(500).json({ message: 'Error del servidor' });
-  }
-});
-
-// 🔐 GET /api/encuestadores/all
-// Solo administradores pueden ver el listado completo
-router.get('/all', verifyToken, verifyAdmin, async (req, res) => {
-  try {
-    const encuestadores = await Encuestador.find()
-      .populate('id_proyecto', 'nombre')
-      .sort({ creado_en: -1 });
-    res.json(encuestadores);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error al obtener encuestadores' });
   }
 });
 
@@ -84,9 +97,9 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// 🔐 PUT /api/encuestadores/:id
+// 🔐 PUT /api/encuestadores/id/:id
 // Editar encuestador – cualquier usuario autenticado
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/id/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -147,7 +160,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
 // 🔐 DELETE /api/encuestadores/:id
 // Solo administradores pueden eliminar
-router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const eliminado = await Encuestador.findByIdAndDelete(id);

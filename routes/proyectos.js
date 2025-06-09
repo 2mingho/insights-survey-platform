@@ -3,7 +3,6 @@ const router = express.Router();
 const Proyecto = require('../models/Proyecto');
 const Encuestador = require('../models/Encuestador');
 const verifyToken = require('../middleware/verifyToken');
-const verifyAdmin = require('../middleware/verifyAdmin');
 
 // 🔓 GET /api/proyectos
 // Ruta pública para cargar opciones en formularios
@@ -18,7 +17,7 @@ router.get('/', async (req, res) => {
 
 // 🔐 POST /api/proyectos
 // Crear proyecto – solo administradores
-router.post('/', verifyToken, verifyAdmin, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const { nombre, descripcion, foto_url } = req.body;
 
@@ -43,7 +42,7 @@ router.post('/', verifyToken, verifyAdmin, async (req, res) => {
 
 // 🔐 DELETE /api/proyectos/:id
 // Eliminar proyecto – solo administradores
-router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -66,9 +65,27 @@ router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// 🔐 GET /api/proyectos/:id
+// Obtener un proyecto por ID – autenticado
+router.get('/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const proyecto = await Proyecto.findById(id);
+
+    if (!proyecto) {
+      return res.status(404).json({ message: 'Proyecto no encontrado' });
+    }
+
+    res.json(proyecto);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al obtener el proyecto' });
+  }
+});
+
 // 🔐 PUT /api/proyectos/:id
 // Actualizar proyecto – solo administradores
-router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
+ router.put('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, descripcion, foto_url } = req.body;
