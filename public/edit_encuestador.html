@@ -90,7 +90,7 @@
     }
 
     async function cargarEncuestador() {
-      const res = await fetch(`/api/encuestadores/${id}`, {
+      const res = await fetch(`/api/encuestadores/id/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -118,12 +118,34 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      [...form.elements].forEach(el => el.classList.remove('border-red-500'));
+
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
       payload.es_confidencial = formData.get('es_confidencial') === 'on';
 
+      const errores = [];
+
+      const marcarError = (campo, mensaje) => {
+        campo.classList.add('border-red-500');
+        errores.push(mensaje);
+      };
+
+      if (!form.nombre_completo.value.trim()) marcarError(form.nombre_completo, "El nombre completo es obligatorio.");
+      if (!/^\d{3,}$/.test(form.cedula.value)) marcarError(form.cedula, "La cédula debe tener al menos 3 dígitos numéricos.");
+      if (!form.carnet_asignado.value.trim()) marcarError(form.carnet_asignado, "El ID del carnet es obligatorio.");
+      if (!form.zona_designada.value.trim()) marcarError(form.zona_designada, "Debe indicar la zona asignada.");
+      if (!/^https?:\/\/.+\..+/.test(form.foto_url.value)) marcarError(form.foto_url, "La URL de la foto no es válida.");
+      if (!form.id_proyecto.value) marcarError(form.id_proyecto, "Debe seleccionar un proyecto.");
+
+      if (errores.length > 0) {
+        alert("❌ Corrige los siguientes errores:\n\n" + errores.join("\n"));
+        return;
+      }
+
       try {
-        const res = await fetch(`/api/encuestadores/${id}`, {
+        const res = await fetch(`/api/encuestadores/id/${id}`, { // ✅ CORREGIDA LA RUTA
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

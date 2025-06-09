@@ -17,6 +17,20 @@ router.get('/all', verifyToken, async (req, res) => {
   }
 });
 
+// 🔐 GET /api/encuestadores/id/:id
+// Buscar encuestador por su ID de MongoDB
+router.get('/id/:id', verifyToken, async (req, res) => {
+  try {
+    const encuestador = await Encuestador.findById(req.params.id).populate('id_proyecto', 'nombre');
+    if (!encuestador) {
+      return res.status(404).json({ message: 'Encuestador no encontrado' });
+    }
+    res.json(encuestador);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el encuestador' });
+  }
+});
+
 // 🔓 GET /api/encuestadores/:carnet
 // Consulta pública por carnet asignado (sin autenticación)
 router.get('/:carnet', async (req, res) => {
@@ -83,9 +97,9 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// 🔐 PUT /api/encuestadores/:id
+// 🔐 PUT /api/encuestadores/id/:id
 // Editar encuestador – cualquier usuario autenticado
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/id/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
