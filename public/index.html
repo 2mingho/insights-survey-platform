@@ -3,49 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificar encuestadores</title>
-  <link href="./css/output.css" rel="stylesheet">
+  <title>Verificación de Encuestador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col min-h-screen font-sans bg-white">
-
-  <!-- Header -->
-  <header class="bg-black flex justify-between items-center px-4 py-3">
+<body class="flex flex-col min-h-screen justify-between font-sans text-center bg-white">
+  <header class="bg-black text-white flex justify-between items-center px-4 py-3">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl">&#9776;</div>
+    <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
   </header>
 
-  <!-- Main content -->
-  <main class="flex flex-col items-center justify-center flex-1 text-center px-4">
-    <h1 class="text-2xl md:text-3xl font-bold mb-10 mt-12">Verificar encuestadores</h1>
+  <main class="px-6 py-10 flex flex-col items-center">
+    <h1 class="text-3xl font-bold mb-6">Verificar encuestadores</h1>
+    <p class="text-lg mb-6" style="margin-top: 15rem;">Ingrese el ID del encuestador</p>
 
-    <label for="carnetInput" class="text-lg md:text-xl mb-4">Ingrese el ID del encuestador</label>
+    <form id="formulario" class="w-full max-w-xs flex flex-col items-center gap-4">
+      <input id="carnetInput" type="text" placeholder="Identificador"
+             class="border-2 border-black px-6 py-4 rounded-xl w-full text-center placeholder-gray-400 text-lg" />
 
-    <input id="carnetInput" type="text" placeholder="Identificador"
-      class="w-72 max-w-full border border-black rounded-md px-4 py-3 text-center text-gray-500 mb-6 focus:outline-none focus:ring-2 focus:ring-black">
+      <button type="submit"
+              class="border-2 border-black px-6 py-3 rounded-full text-lg font-light hover:bg-black hover:text-white transition">
+        Verificar
+      </button>
 
-    <button id="buscarBtn"
-      class="w-72 max-w-full border border-black rounded-full px-6 py-3 font-medium text-lg hover:bg-black hover:text-white transition">
-      Verificar
-    </button>
+      <!-- Mensaje de error -->
+      <p id="errorMensaje" class="text-red-600 text-sm font-medium hidden">⚠️ Debe ingresar un ID válido.</p>
+    </form>
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center text-sm text-white bg-black py-2">
+  <footer class="text-sm text-center text-white bg-black py-2 mt-auto">
     © Insights – Newlink Dominicana 2025
   </footer>
 
-  <!-- Script -->
   <script>
-    document.getElementById("buscarBtn").addEventListener("click", () => {
-      const input = document.getElementById("carnetInput");
-      const carnet = input.value.trim();
-      if (!carnet) {
-        alert("Por favor ingresa un ID de encuestador.");
-        return;
+    const form = document.getElementById("formulario");
+    const input = document.getElementById("carnetInput");
+    const errorMensaje = document.getElementById("errorMensaje");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault(); // Previene el envío normal del formulario
+
+      const valor = input.value.trim();
+
+      if (!valor) {
+        errorMensaje.classList.remove("hidden");
+      } else {
+        errorMensaje.classList.add("hidden");
+        // Redirigir o procesar como desees
+        window.location.href = `/encuestador/${encodeURIComponent(valor)}`;
       }
-      window.location.href = `/encuestador/${encodeURIComponent(carnet)}`;
     });
   </script>
-
 </body>
 </html>
