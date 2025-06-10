@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificar encuestador</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>Verificación de Encuestador</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="flex flex-col justify-between min-h-screen text-center font-sans">
+<body class="flex flex-col min-h-screen justify-between font-sans text-center">
   <header class="bg-black text-white flex justify-between items-center p-4">
     <img src="img/logo.svg" alt="Logo" class="h-8">
     <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
   </header>
 
-  <main class="flex flex-col items-center justify-center p-6">
-    <h1 class="text-2xl font-bold mb-6">Verificar encuestadores</h1>
-    <form id="searchForm" class="flex flex-col gap-4 w-full max-w-sm">
-      <label for="carnet" class="text-lg">Ingrese el ID del encuestador</label>
-      <input type="text" id="carnet" name="carnet" placeholder="Identificador" class="border border-black px-4 py-2 rounded" required pattern="^\S+$"/>
-      <button type="submit" class="border border-black rounded-full py-2 text-lg hover:bg-black hover:text-white transition">
-        Verificar
+  <main class="p-6 flex flex-col items-center">
+    <h1 class="text-2xl font-bold mb-6">Verificación de Encuestador</h1>
+    <p class="mb-4">Introduce el ID de colaborador que aparece en su carnet:</p>
+    <div class="flex gap-2">
+      <input id="carnetInput" type="text" placeholder="Ej. 123"
+             class="border border-gray-300 px-4 py-2 rounded w-60">
+      <button id="buscarBtn" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+        Buscar
       </button>
-    </form>
+    </div>
   </main>
 
-  <footer class="text-sm text-center text-white bg-black py-2">
+  <footer class="text-sm text-center text-white bg-black py-2 mt-auto">
     © Insights – Newlink Dominicana 2025
   </footer>
 

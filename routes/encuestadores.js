@@ -4,7 +4,6 @@ const Encuestador = require('../models/Encuestador');
 const verifyToken = require('../middleware/verifyToken');
 
 // 🔐 GET /api/encuestadores/all
-// Solo administradores pueden ver el listado completo
 router.get('/all', verifyToken, async (req, res) => {
   try {
     const encuestadores = await Encuestador.find()
@@ -17,36 +16,22 @@ router.get('/all', verifyToken, async (req, res) => {
   }
 });
 
-// 🔐 GET /api/encuestadores/id/:id
-// Buscar encuestador por su ID de MongoDB
+// ✅ 🔐 GET /api/encuestadores/id/:id (FALTANTE)
 router.get('/id/:id', verifyToken, async (req, res) => {
   try {
-    const encuestador = await Encuestador.findById(req.params.id).populate('id_proyecto', 'nombre');
+    const encuestador = await Encuestador.findById(req.params.id)
+      .populate('id_proyecto', 'nombre');
     if (!encuestador) {
       return res.status(404).json({ message: 'Encuestador no encontrado' });
     }
     res.json(encuestador);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error al obtener el encuestador' });
   }
 });
 
-// 🔓 GET /api/encuestadores/:carnet
-// Consulta pública por carnet asignado (sin autenticación)
-router.get('/:carnet', async (req, res) => {
-  try {
-    const encuestador = await Encuestador.findOne({ carnet_asignado: req.params.carnet });
-    if (!encuestador) {
-      return res.status(404).json({ message: 'Encuestador no encontrado' });
-    }
-    res.json(encuestador);
-  } catch (error) {
-    res.status(500).json({ message: 'Error del servidor' });
-  }
-});
-
 // 🔐 POST /api/encuestadores
-// Crear encuestador – cualquier usuario autenticado
 router.post('/', verifyToken, async (req, res) => {
   try {
     const {
@@ -98,7 +83,6 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // 🔐 PUT /api/encuestadores/id/:id
-// Editar encuestador – cualquier usuario autenticado
 router.put('/id/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -159,7 +143,6 @@ router.put('/id/:id', verifyToken, async (req, res) => {
 });
 
 // 🔐 DELETE /api/encuestadores/:id
-// Solo administradores pueden eliminar
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -171,6 +154,21 @@ router.delete('/:id', verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al eliminar el encuestador' });
+  }
+});
+
+// 🔓 GET /api/encuestadores/carnet/:carnet
+router.get('/carnet/:carnet', async (req, res) => {
+  try {
+    const encuestador = await Encuestador.findOne({ carnet_asignado: req.params.carnet })
+      .populate('id_proyecto', 'nombre');
+    if (!encuestador) {
+      return res.status(404).json({ message: 'Encuestador no encontrado' });
+    }
+    res.json(encuestador);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error del servidor' });
   }
 });
 
