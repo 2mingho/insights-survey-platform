@@ -3,31 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Verificación de Encuestador</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Verificar encuestadores</title>
+  <link href="./css/output.css" rel="stylesheet">
 </head>
-<body class="flex flex-col min-h-screen justify-between font-sans text-center">
-  <header class="bg-black text-white flex justify-between items-center p-4">
+<body class="flex flex-col min-h-screen font-sans bg-white">
+
+  <!-- Header -->
+  <header class="bg-black flex justify-between items-center px-4 py-3">
     <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+    <div class="text-yellow-400 text-3xl">&#9776;</div>
   </header>
 
-  <main class="p-6 flex flex-col items-center">
-    <h1 class="text-2xl font-bold mb-6">Verificación de Encuestador</h1>
-    <p class="mb-4">Introduce el ID de colaborador que aparece en su carnet:</p>
-    <div class="flex gap-2">
-      <input id="carnetInput" type="text" placeholder="Ej. 123"
-             class="border border-gray-300 px-4 py-2 rounded w-60">
-      <button id="buscarBtn" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
-        Buscar
-      </button>
-    </div>
+  <!-- Main content -->
+  <main class="flex flex-col items-center justify-center flex-1 text-center px-4">
+    <h1 class="text-2xl md:text-3xl font-bold mb-10 mt-12">Verificar encuestadores</h1>
+
+    <label for="carnetInput" class="text-lg md:text-xl mb-4">Ingrese el ID del encuestador</label>
+
+    <input id="carnetInput" type="text" placeholder="Identificador"
+      class="w-72 max-w-full border border-black rounded-md px-4 py-3 text-center text-gray-500 mb-6 focus:outline-none focus:ring-2 focus:ring-black">
+
+    <button id="buscarBtn"
+      class="w-72 max-w-full border border-black rounded-full px-6 py-3 font-medium text-lg hover:bg-black hover:text-white transition">
+      Verificar
+    </button>
   </main>
 
-  <footer class="text-sm text-center text-white bg-black py-2 mt-auto">
+  <!-- Footer -->
+  <footer class="text-center text-sm text-white bg-black py-2">
     © Insights – Newlink Dominicana 2025
   </footer>
 
-  <script src="js/main.js"></script>
+  <!-- Script -->
+  <script>
+    document.getElementById("buscarBtn").addEventListener("click", () => {
+      const input = document.getElementById("carnetInput");
+      const carnet = input.value.trim();
+      if (!carnet) {
+        alert("Por favor ingresa un ID de encuestador.");
+        return;
+      }
+      window.location.href = `/encuestador/${encodeURIComponent(carnet)}`;
+    });
+  </script>
+
 </body>
 </html>

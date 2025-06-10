@@ -1,3 +1,4 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap');
 
 * {
@@ -16,28 +17,28 @@
 }
 
 .logo {
-    height: ;
-    width: ;
+    /* height: ;
+    width: ; */
     /* left */
     cursor: pointer; 
 }
 
 .menu {
-    height: ;
-    width: ;
+    /* height: ;
+    width: ; */
     /* right */
     cursor: pointer;
 }
 
 .navbar {
-    height: ; 
+    /* height: ;  */
     width: 100%;
     top: 0;
     background-color: #000000;
 }
 
 .footer {
-    height: ;
+    /* height: ; */
     width: 100%;
     bottom: 0;
     background-color: #000000;
@@ -117,8 +118,8 @@
     /* center */
     border-radius: 45px;
     border: 2px solid #000000;
-    width: ;
-    height: ;
+    /* width: ;
+    height: ; */
     object-fit: cover;
 }
 
