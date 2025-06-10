@@ -46,10 +46,12 @@
 
       if (!valor) {
         errorMensaje.classList.remove("hidden");
+        errorMensaje.classList.add("animate-pulse");
       } else {
         errorMensaje.classList.add("hidden");
+        errorMensaje.classList.remove("animate-pulse");
         // Redirigir o procesar como desees
-        window.location.href = `/encuestador/${encodeURIComponent(valor)}`;
+      window.location.href = `/encuestador/${encodeURIComponent(valor)}`;
       }
     });
   </script>
