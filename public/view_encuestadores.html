@@ -4,70 +4,66 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestión de Encuestadores</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link href="./css/output.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+<body class="font-sans min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="bg-black text-white flex justify-between items-center p-4">
-    <img src="img/logo.svg" alt="Logo" class="h-8">
+  <header class="bg-black text-white flex justify-between items-center px-4 py-3">
+    <img src="./img/logo.png" alt="Logo" class="h-8">
     <div class="flex items-center gap-4">
       <button onclick="cerrarSesion()"
               class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">
         Cerrar sesión
       </button>
-      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+      <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
     </div>
   </header>
 
-  <!-- Título y botones -->
-  <main class="p-6 flex-grow">
-    <div class="flex items-center justify-between max-w-5xl mx-auto mb-6 px-2">
-      <!-- Título -->
-      <h1 class="text-2xl font-bold text-left">
-        Encuestadores
-      </h1>
+  <!-- Contenido principal -->
+  <main class="flex-grow px-4 py-6">
 
-      <!-- Botones -->
-      <div class="flex items-center gap-4">
-        <!-- Proyectos -->
+    <!-- Título y acciones -->
+    <div class="max-w-5xl mx-auto flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Encuestadores</h1>
+      <div class="flex items-center space-x-4">
         <a href="proyectos.html"
-           class="bg-black text-yellow-400 px-4 py-2 rounded-full text-lg font-medium hover:bg-gray-800 transition">
+           class="border-2 border-black rounded-md px-4 py-2 text-base font-medium hover:bg-black hover:text-white transition">
           Proyectos
         </a>
-        <!-- Nuevo (+) -->
         <a href="add_encuestador.html"
-           class="border-2 border-black px-3 py-2 rounded-md flex items-center justify-center text-2xl font-light hover:bg-black hover:text-white transition">
-          +
+           class="bg-black rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-800 transition">
+          <span class="text-yellow-400 text-xl font-bold leading-none">+</span>
         </a>
       </div>
     </div>
 
     <!-- Tabla de encuestadores -->
-    <div class="max-w-5xl mx-auto bg-gray-200 rounded-lg overflow-x-auto">
-      <table class="w-full table-auto">
-        <thead>
-          <tr class="bg-gray-300">
+    <div class="max-w-5xl mx-auto bg-gray-200 rounded-lg overflow-hidden">
+      <table class="w-full table-auto text-sm">
+        <thead class="bg-gray-300">
+          <tr>
+            <th class="px-4 py-2 text-left font-semibold">#</th>
             <th class="px-4 py-2 text-left font-semibold">Nombres</th>
             <th class="px-4 py-2 text-left font-semibold">Status</th>
             <th class="px-4 py-2 text-left font-semibold">Tools</th>
           </tr>
         </thead>
         <tbody id="encuestadoresBody">
-          <!-- Aquí se inyectan las filas -->
+          <!-- Filas se inyectan aquí -->
         </tbody>
       </table>
     </div>
 
-    <!-- Mensaje si está vacío -->
-    <p id="vacioMsg" class="text-gray-500 mt-6 hidden">
+    <!-- Mensaje vacío -->
+    <p id="vacioMsg" class="max-w-5xl mx-auto text-center text-gray-500 mt-6 hidden">
       Aún no hay encuestadores registrados, prueba agregar uno nuevo.
     </p>
+
   </main>
 
   <!-- Footer -->
-  <footer class="text-sm text-white bg-black py-2">
+  <footer class="bg-black text-white text-center py-2">
     © Insights – Newlink Dominicana 2025
   </footer>
 
@@ -84,11 +80,8 @@
 
     function sanitize(str) {
       return str?.replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#039;'
       }[m])) || '';
     }
 
@@ -103,16 +96,21 @@
           cerrarSesion();
           return;
         }
-        if (!res.ok) throw new Error("Error al obtener encuestadores");
+        if (!res.ok) throw new Error();
 
-        const encuestadores = await res.json();
-        renderizarEncuestadores(encuestadores);
-      } catch (err) {
+        const lista = await res.json();
+        renderizarEncuestadores(lista);
+      } catch {
         alert("Error al verificar el acceso.");
       }
     }
 
     function renderizarEncuestadores(lista) {
+      // Ordenar por carnet_asignado (numérico)
+      lista.sort((a, b) =>
+        a.carnet_asignado.localeCompare(b.carnet_asignado, undefined, { numeric: true })
+      );
+
       const tbody = document.getElementById('encuestadoresBody');
       const vacioMsg = document.getElementById('vacioMsg');
       tbody.innerHTML = '';
@@ -120,28 +118,34 @@
       if (lista.length === 0) {
         vacioMsg.classList.remove('hidden');
         return;
+      } else {
+        vacioMsg.classList.add('hidden');
       }
 
       lista.forEach(e => {
-        const row = document.createElement('tr');
-        row.className = 'border-b border-gray-300';
-        row.innerHTML = `
-          <td class="px-4 py-2 text-left">${sanitize(e.nombre_completo)}</td>
-          <td class="px-4 py-2 text-left font-semibold ${
-            e.estado === 'activo' ? 'text-green-600' : 'text-red-500'
-          }">${sanitize(e.estado)}</td>
-          <td class="px-4 py-2 text-left">
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-300';
+
+        tr.innerHTML = `
+          <td class="px-4 py-2 text-left text-sm min-h-[40px] font-medium">
+            ${sanitize(e.carnet_asignado)}
+          </td>
+          <td class="px-4 py-2 text-left text-sm min-h-[40px]">
+            ${sanitize(e.nombre_completo)}
+          </td>
+          <td class="px-4 py-2 text-left text-sm min-h-[40px] font-semibold ${
+            e.estado === 'activo' ? 'text-green-500' : 'text-red-500'
+          }">
+            ${sanitize(e.estado)}
+          </td>
+          <td class="px-4 py-2 flex items-center gap-2 text-sm min-h-[40px]">
             <button onclick="editarEncuestador('${e._id}')"
-                    class="inline-block border border-green-600 text-green-600 px-2 py-1 rounded hover:bg-green-600 hover:text-white transition">
-              ▼
-            </button>
+                    class="text-green-500 text-xl hover:text-green-600 transition leading-none">▼</button>
             <button onclick="eliminarEncuestador('${e._id}')"
-                    class="inline-block border border-red-600 text-red-600 px-2 py-1 rounded hover:bg-red-600 hover:text-white transition ml-2">
-              ■
-            </button>
+                    class="text-red-500 text-xl hover:text-red-600 transition leading-none">■</button>
           </td>
         `;
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
       });
     }
 
@@ -157,18 +161,26 @@
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
-          alert("Encuestador eliminado.");
           location.reload();
         } else {
           const data = await res.json();
           alert(data.message || "No se pudo eliminar el encuestador.");
         }
-      } catch (err) {
+      } catch {
         alert("Error al intentar eliminar.");
       }
     }
 
+    // Llamada inicial
     verificarToken();
+
+    // Al volver de la pantalla anterior (back), recarga datos automáticamente
+    window.addEventListener('pageshow', (event) => {
+      // Si viene del cache (navegación back), refrescamos
+      if (event.persisted) {
+        verificarToken();
+      }
+    });
   </script>
 </body>
 </html>

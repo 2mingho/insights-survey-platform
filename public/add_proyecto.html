@@ -4,31 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agregar Proyecto</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link href="./css/output.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+<body class="font-sans min-h-screen flex flex-col">
 
-  <header class="bg-black text-white flex justify-between items-center p-4">
-    <img src="img/logo.svg" alt="Logo" class="h-8">
+  <!-- Header -->
+  <header class="bg-black text-white flex justify-between items-center px-4 py-3">
+    <img src="./img/logo.png" alt="Logo" class="h-8">
     <div class="flex items-center gap-4">
-      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
-      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+      <button onclick="cerrarSesion()"
+              class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">
+        Cerrar sesión
+      </button>
+      <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
     </div>
   </header>
 
-  <main class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Nuevo Proyecto</h1>
+  <!-- Main -->
+  <main class="flex-grow p-6">
+    <h1 class="text-2xl font-bold mb-6 text-center">Agregar Proyecto</h1>
 
-    <form id="projectForm" class="max-w-lg mx-auto flex flex-col gap-4 text-left">
-      <input type="text" name="nombre" placeholder="Nombre del proyecto" required />
-      <textarea name="descripcion" rows="3" placeholder="Descripción del proyecto"></textarea>
-      <input type="url" name="foto_url" placeholder="URL del logo o imagen representativa" />
-      <button type="submit" class="border border-black py-2 rounded-full hover:bg-black hover:text-white">Agregar Proyecto</button>
+    <form id="projectForm"
+          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-6 text-left">
+
+      <!-- Logo URL -->
+      <div class="flex flex-col">
+        <label for="foto_url" class="mb-1 font-medium">Logo:</label>
+        <input id="foto_url" name="foto_url" type="url"
+               placeholder="URL del logo o imagen representativa"
+               required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400" />
+      </div>
+
+      <!-- Nombre del proyecto -->
+      <div class="flex flex-col">
+        <label for="nombre" class="mb-1 font-medium">Nombre:</label>
+        <input id="nombre" name="nombre" type="text"
+               placeholder="Nombre del proyecto"
+               required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-500" />
+      </div>
+
+      <!-- Descripción / Notas -->
+      <div class="flex flex-col">
+        <label for="descripcion" class="mb-1 font-medium">Notas:</label>
+        <textarea id="descripcion" name="descripcion" rows="4"
+                  placeholder="Anotaciones / Datos adicionales"
+                  class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-500 resize-none"></textarea>
+      </div>
+
+      <!-- Botones -->
+      <button type="submit"
+              class="bg-black text-yellow-400 rounded-lg px-6 py-3 w-full text-lg font-medium hover:bg-gray-800 transition">
+        Agregar proyecto
+      </button>
+      <button type="button" onclick="window.location.href='proyectos.html'"
+              class="border-2 border-black rounded-full px-6 py-3 w-full text-lg font-medium hover:bg-black hover:text-white transition">
+        Cancelar
+      </button>
     </form>
   </main>
 
-  <footer class="text-sm text-white bg-black py-2">
+  <!-- Footer -->
+  <footer class="bg-black text-white text-center py-2">
     © Insights – Newlink Dominicana 2025
   </footer>
 
@@ -44,20 +82,9 @@
       window.location.href = "/login_admin.html";
     }
 
-    function sanitize(str) {
-      return str?.replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      }[m])) || '';
-    }
-
-    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+    document.getElementById('projectForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
+      const formData = new FormData(e.target);
       const payload = Object.fromEntries(formData.entries());
 
       try {
@@ -72,7 +99,7 @@
 
         if (res.ok) {
           alert('✅ Proyecto agregado correctamente');
-          form.reset();
+          e.target.reset();
         } else if (res.status === 401) {
           alert("Sesión expirada. Redirigiendo al login.");
           cerrarSesion();
