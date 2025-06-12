@@ -2,21 +2,52 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login Admin</title>
-  <link href="/css/styles.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio de Sesión</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="bg-white p-6 rounded-lg shadow-md w-96">
-    <h2 class="text-2xl font-bold mb-4 text-center">Ingreso Administrador</h2>
-    <form id="loginForm">
-      <input type="email" id="mail" placeholder="Correo" required class="w-full mb-3 p-2 border rounded">
-      <input type="password" id="contraseña" placeholder="Contraseña" required class="w-full mb-3 p-2 border rounded">
-      <button id="loginBtn" type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-        Ingresar
+<body class="font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-black text-white flex justify-between items-center px-4 py-3">
+    <img src="./img/logo.png" alt="Logo" class="h-8">
+    <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-6">
+    <h1 class="text-2xl font-bold mb-6">Inicio de Sesión</h1>
+    <form id="loginForm" class="bg-gray-200 rounded-lg p-6 w-full max-w-md flex flex-col gap-6">
+
+      <!-- Correo -->
+      <div class="flex flex-col">
+        <label for="mail" class="mb-1 font-medium">Correo:</label>
+        <input id="mail" type="email" placeholder="Ingrese su correo electrónico" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-500" />
+      </div>
+
+      <!-- Contraseña -->
+      <div class="flex flex-col">
+        <label for="contraseña" class="mb-1 font-medium">Contraseña:</label>
+        <input id="contraseña" type="password" placeholder="Ingrese su contraseña" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-500" />
+      </div>
+
+      <!-- Botón -->
+      <button id="loginBtn" type="submit"
+              class="border-2 border-black rounded-full px-6 py-3 w-full text-lg font-medium hover:bg-black hover:text-white transition">
+        Iniciar sesión
       </button>
+
+      <!-- Error -->
+      <p id="error" class="text-red-600 text-sm mt-2 hidden"></p>
     </form>
-    <p id="error" class="text-red-600 mt-2 hidden"></p>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black text-white text-center py-2">
+    © Insights – Newlink Dominicana 2025
+  </footer>
 
   <script>
     const form = document.getElementById('loginForm');
@@ -25,29 +56,23 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const mail = document.getElementById('mail').value.trim();
       const contraseña = document.getElementById('contraseña').value.trim();
-
       if (!mail || !contraseña) {
         errorText.textContent = 'Debe completar todos los campos.';
         errorText.classList.remove('hidden');
         return;
       }
-
       loginBtn.disabled = true;
       loginBtn.textContent = 'Ingresando...';
       errorText.classList.add('hidden');
-
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mail, contraseña })
         });
-
         const data = await res.json();
-
         if (res.ok) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('admin_nombre', data.nombre);
@@ -60,9 +85,14 @@
         errorText.classList.remove('hidden');
       } finally {
         loginBtn.disabled = false;
-        loginBtn.textContent = 'Ingresar';
+        loginBtn.textContent = 'Iniciar sesión';
       }
     });
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      window.location.href = '/login_admin.html';
+    }
   </script>
 </body>
 </html>

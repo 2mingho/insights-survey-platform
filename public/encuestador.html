@@ -1,102 +1,110 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Perfil de Encuestador</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body class="flex flex-col min-h-screen justify-between font-sans text-center">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Perfil de Encuestador</title>
 
-  <header class="bg-black text-white flex justify-between items-center p-4">
-    <img src="img/logo.svg" alt="Logo" class="h-8">
-    <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
-  </header>
+    <!-- ✅ Tailwind CSS vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen flex flex-col justify-between text-center bg-white font-sans">
+    <header class="bg-black text-white flex justify-between items-center px-4 py-3">
+      <img src="./img/logo.png" alt="Logo" class="h-8">
+      <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
+    </header>
 
-  <main class="p-6 flex flex-col items-center">
-    <h1 class="text-2xl font-bold mb-6">Perfil de encuestador</h1>
-    <div id="infoContainer" class="w-full max-w-md flex flex-col gap-4"></div>
-  </main>
+    <main class="p-6 flex flex-col items-center">
+      <h1 class="text-3xl font-bold mb-6">Perfil de encuestador</h1>
+      <div id="infoContainer" class="w-full max-w-md flex flex-col gap-6 items-center"></div>
+    </main>
 
-  <footer class="text-sm text-center text-white bg-black py-2">
-    © Insights – Newlink Dominicana 2025
-  </footer>
+    <footer class="text-sm bg-black text-white text-center py-3">
+      © Insights – Newlink Dominicana 2025
+    </footer>
 
-  <script>
-    const cont = document.getElementById("infoContainer");
+    <script>
+      const cont = document.getElementById("infoContainer");
 
-    function sanitize(str) {
-      return str?.replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-      }[m])) || '';
-    }
-
-    async function mostrarEncuestador() {
-      // Obtener el carnet desde la URL tipo /encuestador/123
-      const pathParts = window.location.pathname.split('/');
-      const carnet = pathParts[pathParts.length - 1];
-
-      if (!carnet) {
-        cont.innerHTML = "<p class='text-red-600'>⚠️ URL inválida: falta carnet.</p>";
-        return;
+      function sanitize(str) {
+        return str?.replace(/[&<>"']/g, (m) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+        }[m])) || '';
       }
 
-      try {
-        const res = await fetch(`/api/encuestadores/carnet/${encodeURIComponent(carnet)}`);
-        if (!res.ok) throw new Error('No encontrado');
-        const data = await res.json();
+      async function mostrarEncuestador() {
+        const pathParts = window.location.pathname.split('/');
+        const carnet = pathParts[pathParts.length - 1];
 
-        const isActivo = data.estado === "activo";
+        if (!carnet) {
+          cont.innerHTML = "<p class='text-red-600'>⚠️ URL inválida: falta carnet.</p>";
+          return;
+        }
 
-        cont.innerHTML = `
-          <div class="flex flex-col items-center">
-            <div class="relative w-28 h-28 mb-2">
-              <img src="${sanitize(data.foto_url) || 'img/avatar-placeholder.png'}" alt="Foto"
-                   onerror="this.src='img/avatar-placeholder.png'"
-                   class="w-full h-full object-cover rounded-xl border border-black">
-              <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full ${isActivo ? 'bg-green-500' : 'bg-red-600'} border-2 border-white"></span>
+        try {
+          const res = await fetch(`/api/encuestadores/carnet/${encodeURIComponent(carnet)}`);
+          if (!res.ok) throw new Error('No encontrado');
+          const data = await res.json();
+          const isActivo = data.estado === "activo";
+
+          cont.innerHTML = `
+            <div class="relative w-32 h-32 mb-3">
+              <img src="${sanitize(data.foto_url) || 'img/avatar-placeholder.png'}"
+                   alt="Foto"
+                   class="w-full h-full object-cover rounded-xl border border-black"
+                   onerror="this.src='img/avatar-placeholder.png'" />
+              <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-white ${
+                isActivo ? 'bg-green-500' : 'bg-red-600'
+              }"></span>
             </div>
-            <p class="text-lg font-bold">${isActivo ? sanitize(data.nombre_completo) : 'Carnet inactivo'}</p>
-            <p>ID Colaborador: ${isActivo ? sanitize(data.carnet_asignado) : '---'}</p>
-            <p>${isActivo ? sanitize(data.funcion) : '---'}</p>
-          </div>
 
-          <div class="bg-gray-100 p-4 rounded">
-            <p><strong>Proyecto:</strong> ${isActivo ? sanitize(data.id_proyecto?.nombre || 'No especificado') : 'Inactivo'}</p>
-            <p><strong>Entidad Responsable:</strong> ${isActivo ? sanitize(data.entidad_responsable) : '---'}</p>
-          </div>
+            <div class="bg-gray-100 p-6 rounded w-full text-center">
+              <p class="text-lg font-bold">${isActivo ? sanitize(data.nombre_completo) : 'Carnet inactivo'}</p>
+              <p><strong>ID Colaborador:</strong> ${isActivo ? sanitize(data.carnet_asignado) : '---'}</p>
+              <p>${isActivo ? sanitize(data.funcion) : '---'}</p>
+            </div>
 
-          <div class="bg-gray-100 p-4 rounded">
-            <p><strong>Zona Designada</strong></p>
-            <p class="text-xl font-semibold">${isActivo ? sanitize(data.zona_designada) : 'Inactivo'}</p>
-          </div>
+            <div class="bg-gray-100 p-6 rounded w-full text-left">
+              <p><strong>Proyecto:</strong> ${isActivo ? sanitize(data.id_proyecto?.nombre || 'No especificado') : 'Inactivo'}</p>
+              <p><strong>Entidad Responsable:</strong> ${isActivo ? sanitize(data.entidad_responsable) : '---'}</p>
+            </div>
 
-          <div class="bg-gray-100 p-4 rounded text-sm text-left">
-            <p class="mb-2">
-              Nota: Esta credencial digital ha sido emitida exclusivamente para fines de identificación y verificación de los colaboradores externos que participan en el proyecto ${isActivo ? sanitize(data.id_proyecto?.nombre || '---') : '---'}.
+            <div class="bg-gray-100 p-6 rounded w-full text-center">
+              <p class="text-sm">Zona Designada</p>
+              <p class="text-xl font-semibold">${isActivo ? sanitize(data.zona_designada) : 'Inactivo'}</p>
+            </div>
+
+            <div class="bg-gray-100 p-6 rounded w-full text-left text-sm leading-relaxed">
+              <p class="mb-2">
+                Nota: Esta credencial digital ha sido emitida exclusivamente para fines de identificación y verificación de los colaboradores externos que participan en el proyecto ${isActivo ? sanitize(data.id_proyecto?.nombre || '---') : '---'}.
+              </p>
+              <p>
+                La información aquí presentada ha sido validada por la entidad responsable y está destinada a la transparencia y confianza en el proceso de levantamiento de datos de campo.
+              </p>
+            </div>
+
+            <p class="mt-4 font-semibold text-black text-sm">
+              De tener alguna queja o inquietud, puede contactarnos al número:<br> (809) XXX-XXXX
             </p>
-            <p>
-              La información aquí presentada ha sido validada por la entidad responsable y está destinada a la transparencia y confianza en el proceso de levantamiento de datos de campo.
-            </p>
-          </div>
 
-          <p class="mt-4 font-semibold text-sm">
-            De tener alguna queja o inquietud, puede contactarnos al número: <br>(809) XXX-XXXX
-          </p>
+            <button onclick="window.location.href='/'"
+                    class="border border-black px-5 py-2 rounded text-sm hover:bg-black hover:text-white transition mt-6">
+              Verificar otro ID
+            </button>
+          `;
 
+          localStorage.removeItem("encuestadorData");
+        } catch (err) {
+          cont.innerHTML = `<p class='text-red-600 font-semibold'>⚠️ Encuestador no encontrado.</p>
+          
           <button onclick="window.location.href='/'"
-                  class="mt-6 border border-black px-4 py-2 rounded hover:bg-black hover:text-white transition">
-            Verificar otro ID
-          </button>
-        `;
-
-        localStorage.removeItem("encuestadorData");
-      } catch (err) {
-        cont.innerHTML = "<p class='text-red-600'>⚠️ Encuestador no encontrado.</p>";
+                    class="border border-black px-5 py-2 rounded text-sm hover:bg-black hover:text-white transition mt-6">
+              Verificar otro ID
+          </button>`;
+        }
       }
-    }
 
-    mostrarEncuestador();
-  </script>
-</body>
+      mostrarEncuestador();
+    </script>
+  </body>
 </html>
