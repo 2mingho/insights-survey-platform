@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Teachers', 'Arial', sans-serif;
+    font-size: 14px;
+}
+
+.view_title {
+    /* H1 */
+    text-align: center;
+    font-weight: 800;
+    font-size: 2rem; /* 28px */
+}
+
+.logo {
+    /* height: ;
+    width: ; */
+    /* left */
+    cursor: pointer; 
+}
+
+.menu {
+    /* height: ;
+    width: ; */
+    /* right */
+    cursor: pointer;
+}
+
+.navbar {
+    /* height: ;  */
+    width: 100%;
+    top: 0;
+    background-color: #000000;
+}
+
+.footer {
+    /* height: ; */
+    width: 100%;
+    bottom: 0;
+    background-color: #000000;
+
+    .footer_text {
+        text-align: center;
+        font-size: .85rem; /* 12px */
+    }
+}
+
+.form-label {
+    text-align: left;
+    font-size: 1.71rem; /* 24px */
+}
+
+.form-input {
+    border: 1px solid #000000;
+    border-radius: 10px;
+    width: 100%;
+    font-size: 1.15rem; /* 16px */
+}
+
+.form-button-primary {
+    border: 1px solid #000000;
+    border-radius: 70px;
+    max-width: 70%;
+    color: #000000;
+    background-color: #ffffff;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+.form-button-secondary {
+    border: 1px solid #000000;
+    border-radius: 10px;
+    max-width: 70%;
+    color: #ffdd00;
+    background-color: #000000;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+.inner-form-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.43rem; /* 20px */
+}
+
+.detail-paragraph {
+    text-align: left;
+    font-size: .85rem; /* 12px */
+}
+
+.table-view {
+    width: 80%;
+    border-collapse: collapse;
+
+    th {
+        font-weight: 700;
+        text-align: center;
+    }
+
+    tr {
+        text-align: left;
+    }
+}
+
+.mini-button {
+    border: 1px solid #000000;
+    border-radius: 50%;
+    background-color: #000000;
+    color: #ffdd00;
+    cursor: pointer;
+}
+
+.encuestador-foto {
+    /* center */
+    border-radius: 45px;
+    border: 2px solid #000000;
+    /* width: ;
+    height: ; */
+    object-fit: cover;
+}
+
+.info-container {
+    background-color: gray;
+    border-radius: 10px;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .nombre {
+        font-weight: 800;
+        font-size: 1.43rem; /* 20px */
+    }
+
+    .titles {
+        font-weight: 700;
+        font-size: 1.15rem; /* 16px */
+    }
+
+    .info {
+        font-weight: 400;
+        font-size: 1.15rem; /* 16px */
+    }
+
+    .info-text {
+        font-weight: 400;
+        font-size: 1rem; /* 14px */
+        text-align: left;
+    }
+}
+

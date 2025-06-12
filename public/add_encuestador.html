@@ -4,41 +4,113 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agregar Encuestador</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="font-sans min-h-screen flex flex-col justify-between text-center">
+<body class="font-sans min-h-screen flex flex-col">
 
-  <header class="bg-black text-white flex justify-between items-center p-4">
-    <img src="img/logo.svg" alt="Logo" class="h-8">
+  <!-- Header -->
+  <header class="bg-black text-white flex justify-between items-center px-4 py-3">
+    <img src="./img/logo.png" alt="Logo" class="h-8">
     <div class="flex items-center gap-4">
-      <button onclick="cerrarSesion()" class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">Cerrar sesión</button>
-      <div class="text-yellow-400 text-3xl font-bold">&#9776;</div>
+      <button onclick="cerrarSesion()"
+              class="text-sm border border-white px-3 py-1 rounded hover:bg-white hover:text-black transition">
+        Cerrar sesión
+      </button>
+      <div class="text-yellow-400 text-4xl font-bold">&#9776;</div>
     </div>
   </header>
 
-  <main class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Nuevo encuestador</h1>
+  <!-- Main -->
+  <main class="flex-grow p-6">
+    <h1 class="text-2xl font-bold mb-6 text-center">Agregar Encuestador</h1>
 
-    <form id="addForm" class="max-w-lg mx-auto flex flex-col gap-4 text-left">
-      <input type="text" name="nombre_completo" placeholder="Nombre completo" required />
-      <input type="text" name="cedula" placeholder="Cédula" required />
-      <input type="text" name="carnet_asignado" placeholder="ID del Carnet" required />
-      <input type="text" name="funcion" placeholder="Función / Cargo" required />
-      <select name="id_proyecto" id="proyectoSelect" required></select>
-      <input type="text" name="entidad_responsable" placeholder="Entidad responsable" required />
-      <input type="text" name="zona_designada" placeholder="Zona asignada" required />
-      <input type="url" name="foto_url" placeholder="URL de la foto" />
-      <select name="estado">
-        <option value="activo">Activo</option>
-        <option value="inactivo" selected>Inactivo</option>
-      </select>
-      <label><input type="checkbox" name="es_confidencial" /> Proyecto confidencial</label>
+    <form id="addForm"
+          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-4 text-left">
 
-      <button type="submit" class="border border-black py-2 rounded-full hover:bg-black hover:text-white">Agregar</button>
+      <!-- Foto URL + Status -->
+      <div class="flex gap-4">
+        <div class="flex-1 flex flex-col">
+          <label for="foto_url" class="mb-1 font-medium">Foto:</label>
+          <input id="foto_url" name="foto_url" type="url" placeholder="URL de la foto" required
+                 class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+        </div>
+        <div class="w-32 flex flex-col">
+          <label for="estado" class="mb-1 font-medium">Status:</label>
+          <select id="estado" name="estado" required
+                  class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700">
+            <option value="inactivo" selected>Inactivo</option>
+            <option value="activo">Activo</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Nombre completo -->
+      <div class="flex flex-col">
+        <label for="nombre_completo" class="mb-1 font-medium">Nombre:</label>
+        <input id="nombre_completo" name="nombre_completo" type="text" placeholder="Nombre Completo" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- DNI / Cédula -->
+      <div class="flex flex-col">
+        <label for="cedula" class="mb-1 font-medium">DNI / Cédula:</label>
+        <input id="cedula" name="cedula" type="text" placeholder="XXXXXXXXXXXX" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- Carnet asignado -->
+      <div class="flex flex-col">
+        <label for="carnet_asignado" class="mb-1 font-medium">Carnet asignado:</label>
+        <input id="carnet_asignado" name="carnet_asignado" type="text" placeholder="XXXX" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- Función -->
+      <div class="flex flex-col">
+        <label for="funcion" class="mb-1 font-medium">Función:</label>
+        <input id="funcion" name="funcion" type="text" placeholder="Función/Puesto" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- Proyecto -->
+      <div class="flex flex-col">
+        <label for="proyectoSelect" class="mb-1 font-medium">Proyecto:</label>
+        <select id="proyectoSelect" name="id_proyecto" required
+                class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700">
+          <option value="" disabled selected>Nombre del proyecto</option>
+        </select>
+      </div>
+
+      <!-- Entidad -->
+      <div class="flex flex-col">
+        <label for="entidad_responsable" class="mb-1 font-medium">Entidad:</label>
+        <input id="entidad_responsable" name="entidad_responsable" type="text"
+               placeholder="Entidad Responsable" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- Zona asignada -->
+      <div class="flex flex-col">
+        <label for="zona_designada" class="mb-1 font-medium">Zona asignada:</label>
+        <input id="zona_designada" name="zona_designada" type="text"
+               placeholder="Zona designada a este agente" required
+               class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
+      </div>
+
+      <!-- Botones -->
+      <button type="submit"
+              class="bg-black text-yellow-400 rounded-lg px-6 py-3 w-full text-lg font-medium hover:bg-gray-800 transition mt-4">
+        Agregar encuestador
+      </button>
+      <button type="button" onclick="window.history.back()"
+              class="border-2 border-black rounded-full px-6 py-3 w-full text-lg hover:bg-black hover:text-white transition">
+        Cancelar
+      </button>
     </form>
   </main>
 
-  <footer class="text-sm text-white bg-black py-2">
+  <!-- Footer -->
+  <footer class="bg-black text-white text-center py-2">
     © Insights – Newlink Dominicana 2025
   </footer>
 
@@ -69,11 +141,9 @@
         const res = await fetch('/api/proyectos', {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         if (res.status === 401 || res.status === 403) {
           throw new Error('Acceso no autorizado');
         }
-
         const proyectos = await res.json();
         const select = document.getElementById('proyectoSelect');
         proyectos.forEach(p => {
@@ -82,7 +152,7 @@
           opt.textContent = sanitize(p.nombre);
           select.appendChild(opt);
         });
-      } catch (err) {
+      } catch {
         alert('Token inválido o expirado. Redirigiendo...');
         cerrarSesion();
       }
@@ -115,7 +185,7 @@
           const data = await res.json();
           alert(data.message || '❌ Error al guardar encuestador');
         }
-      } catch (err) {
+      } catch {
         alert('❌ Error de red al enviar los datos');
       }
     }
