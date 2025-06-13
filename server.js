@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/imagenes', express.static(path.join(__dirname, 'public/imagenes'))); // NUEVO
 
 // =======================
 // Rutas API
@@ -39,18 +40,14 @@ app.use('/api/encuestadores', encuestadoresRouter);
 // =======================
 // Rutas públicas (HTML)
 // =======================
-
-// Vista principal (buscador)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Vista del encuestador por carnet (usada para QR y búsqueda directa)
 app.get('/encuestador/:carnet', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'encuestador.html'));
 });
 
-// Otras páginas públicas
 app.get('/about_us', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'about_us.html'));
 });
@@ -59,9 +56,6 @@ app.get('/login_admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login_admin.html'));
 });
 
-// =======================
-// Rutas protegidas (requieren token en frontend)
-// =======================
 app.get('/view_encuestadores', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'view_encuestadores.html'));
 });
@@ -87,16 +81,13 @@ app.get('/edit_proyecto', (req, res) => {
 });
 
 // =======================
-// Fallback para rutas no encontradas
+// Fallback
 // =======================
 app.get('*', (req, res) => {
   console.warn(`Ruta no encontrada: ${req.originalUrl}`);
   res.status(404).send('Página no encontrada');
 });
 
-// =======================
-// Iniciar servidor
-// =======================
 app.listen(PORT, () => {
   console.log(`🚀 Servidor activo en puerto ${PORT}`);
 });

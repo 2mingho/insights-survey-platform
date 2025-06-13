@@ -80,7 +80,7 @@
     }
 
     function sanitize(str) {
-      return str?.replace(/[&<>"']/g, (m) => ({
+      return str?.replace(/[&<>"]|'/g, (m) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;',
         '"': '&quot;', "'": '&#039;'
       }[m])) || '';
@@ -107,7 +107,6 @@
     }
 
     function renderizarEncuestadores(lista) {
-      // Ordenar por carnet_asignado (numérico)
       lista.sort((a, b) =>
         a.carnet_asignado.localeCompare(b.carnet_asignado, undefined, { numeric: true })
       );
@@ -134,16 +133,25 @@
           <td class="px-4 py-2 text-left text-sm min-h-[40px]">
             ${sanitize(e.nombre_completo)}
           </td>
-          <td class="px-4 py-2 text-left text-sm min-h-[40px] font-semibold ${
-            e.estado === 'activo' ? 'text-green-500' : 'text-red-500'
-          }">
+          <td class="px-4 py-2 text-left text-sm min-h-[40px] font-semibold ${e.estado === 'activo' ? 'text-green-500' : 'text-red-500'}">
             ${sanitize(e.estado)}
           </td>
           <td class="px-4 py-2 flex items-center gap-2 text-sm min-h-[40px]">
             <button onclick="editarEncuestador('${e._id}')"
-                    class="text-green-500 text-xl hover:text-green-600 transition leading-none">▼</button>
+                    class="text-green-500 text-xl hover:text-green-600 transition leading-none"
+                    title="Editar">
+              ▼
+            </button>
+            <button onclick="verPerfilPublico('${e.carnet_asignado}')"
+                    class="bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs hover:bg-blue-600 transition"
+                    title="Ver perfil">
+              
+            </button>
             <button onclick="eliminarEncuestador('${e._id}')"
-                    class="text-red-500 text-xl hover:text-red-600 transition leading-none">■</button>
+                    class="text-red-500 text-xl hover:text-red-600 transition leading-none"
+                    title="Eliminar">
+              ■
+            </button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -152,6 +160,10 @@
 
     function editarEncuestador(id) {
       window.location.href = `edit_encuestador.html?id=${id}`;
+    }
+
+    function verPerfilPublico(carnet) {
+      window.location.href = `/encuestador/${carnet}`;
     }
 
     async function eliminarEncuestador(id) {
@@ -172,12 +184,9 @@
       }
     }
 
-    // Llamada inicial
     verificarToken();
 
-    // Al volver de la pantalla anterior (back), recarga datos automáticamente
     window.addEventListener('pageshow', (event) => {
-      // Si viene del cache (navegación back), refrescamos
       if (event.persisted) {
         verificarToken();
       }

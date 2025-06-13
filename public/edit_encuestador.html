@@ -26,13 +26,14 @@
     <h1 class="text-2xl font-bold mb-6 text-center">Editar Encuestador</h1>
 
     <form id="editForm"
-          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-4 text-left">
+          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-4 text-left"
+          enctype="multipart/form-data">
 
-      <!-- Foto URL + Status -->
+      <!-- Foto archivo + Status -->
       <div class="flex gap-4">
         <div class="flex-1 flex flex-col">
-          <label for="foto_url" class="mb-1 font-medium">Foto:</label>
-          <input id="foto_url" name="foto_url" type="url" placeholder="URL de la foto" required
+          <label for="foto" class="mb-1 font-medium">Foto (dejar vacío para no cambiar):</label>
+          <input id="foto" name="foto" type="file" accept="image/*"
                  class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700"/>
         </div>
         <div class="w-32 flex flex-col">
@@ -44,6 +45,9 @@
           </select>
         </div>
       </div>
+
+      <!-- Campo oculto con ruta de imagen actual -->
+      <input type="hidden" id="foto_actual" name="foto_actual" />
 
       <!-- Nombre completo -->
       <div class="flex flex-col">
@@ -135,12 +139,11 @@
     }
 
     function sanitize(str) {
-      return str?.replace(/&<>\"'/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      return str?.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
       }[m])) || '';
     }
 
-    // Obtiene y rellena datos, retorna proyecto asignado
     async function cargarEncuestador() {
       const res = await fetch(`/api/encuestadores/id/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -154,13 +157,12 @@
       form.funcion.value             = sanitize(e.funcion);
       form.entidad_responsable.value = sanitize(e.entidad_responsable);
       form.zona_designada.value      = sanitize(e.zona_designada);
-      form.foto_url.value            = sanitize(e.foto_url);
       form.estado.value              = sanitize(e.estado);
+      form.foto_actual.value         = sanitize(e.foto_url); // guardar ruta actual
 
       return e.id_proyecto;
     }
 
-    // Obtiene proyectos y luego asigna seleccionado
     async function cargarProyectos() {
       const res = await fetch('/api/proyectos', {
         headers: { Authorization: `Bearer ${token}` }
@@ -180,7 +182,7 @@
       try {
         const selectedId = await cargarEncuestador();
         await cargarProyectos();
-        proyectoSelect.value = selectedId; // asigna el proyecto existente
+        proyectoSelect.value = selectedId;
       } catch {
         alert('Error cargando datos. Redirigiendo...');
         cerrarSesion();
@@ -189,17 +191,20 @@
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const payload = Object.fromEntries(new FormData(form).entries());
-      payload.es_confidencial = form.es_confidencial && form.es_confidencial.checked;
+      const formData = new FormData(form);
+      const foto = form.foto.files[0];
+
+      if (!foto) {
+        formData.set('foto_actual', form.foto_actual.value);
+      }
 
       try {
         const res = await fetch(`/api/encuestadores/id/${id}`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify(payload)
+          body: formData
         });
         if (res.ok) {
           alert('✅ Encuestador actualizado correctamente');
