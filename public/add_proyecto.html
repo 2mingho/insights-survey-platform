@@ -26,13 +26,14 @@
     <h1 class="text-2xl font-bold mb-6 text-center">Agregar Proyecto</h1>
 
     <form id="projectForm"
-          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-6 text-left">
+          class="bg-gray-200 rounded-lg p-6 max-w-lg mx-auto flex flex-col gap-6 text-left"
+          enctype="multipart/form-data">
 
-      <!-- Logo URL -->
+      <!-- Logo como archivo -->
       <div class="flex flex-col">
-        <label for="foto_url" class="mb-1 font-medium">Logo:</label>
-        <input id="foto_url" name="foto_url" type="url"
-               placeholder="URL del logo o imagen representativa"
+        <label for="foto" class="mb-1 font-medium">Logo:</label>
+        <input id="foto" name="foto" type="file"
+               accept="image/*"
                required
                class="border-2 border-black rounded-lg px-4 py-3 w-full text-gray-700 placeholder-gray-400" />
       </div>
@@ -86,16 +87,14 @@
     document.getElementById('projectForm').addEventListener('submit', async e => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      const payload = Object.fromEntries(formData.entries());
 
       try {
         const res = await fetch('/api/proyectos', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(payload)
+          body: formData
         });
 
         if (res.ok) {
